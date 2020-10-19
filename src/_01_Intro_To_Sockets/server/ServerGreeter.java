@@ -1,27 +1,49 @@
 package _01_Intro_To_Sockets.server;
 
 import java.net.*;
+
+import javax.swing.JOptionPane;
+
 import java.io.*;
 
 public class ServerGreeter extends Thread {
 	//1. Create an object of the ServerSocket class
-
+ServerSocket servSocket;
 	public ServerGreeter() throws IOException {
 		//2. Initialize the ServerSocket object. In the parameters,
 		//   you must define the port at which the server will listen for connections.
-		
+		servSocket = new ServerSocket(8080);
 		//*OPTIONAL* you can set a time limit for the server to wait by using the 
 		//  ServerSocket's setSoTimeout(int timeInMilliSeconds) method
 	}
 
 	public void run() {
 		//3. Create a boolean variable and initialize it to true.
-		
+		boolean loopWhile = true;
 		//4. Make a while loop that continues looping as long as the boolean created in the previous step is true.
-			
+			while(loopWhile) {
 			//5. Make a try-catch block that checks for two types Exceptions: SocketTimeoutException and IOException.
 			//   Put steps 8 - 15 in the try block.
-		
+		try {
+			JOptionPane.showMessageDialog(null, "The server is waiting for a client to connect to.");
+			Socket socket = servSocket.accept();
+			JOptionPane.showMessageDialog(null, "The client has connected");
+			DataInputStream inStream = new DataInputStream(socket.getInputStream());
+			inStream.readUTF();
+			DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
+			outStream.writeUTF("HELLO");
+			socket.close();
+		} catch ( Exception e) {
+			// TODO: handle exception
+			if(e.equals("SocketTimeoutException")) {
+			JOptionPane.showMessageDialog(null, "SocketTimeoutException detected");
+			loopWhile = false;}
+			else if(e.equals("IOException")) {
+				JOptionPane.showMessageDialog(null, "IOException detected");
+				loopWhile = false;
+			}
+			
+		}
 				//8. Let the user know that the server is waiting for a client to connect.
 		
 				//9. Create an object of the Socket class and initialize it to serverSocket.accept();
@@ -40,6 +62,8 @@ public class ServerGreeter extends Thread {
 				
 				//15. Close the client server
 		
+			}
+		
 			//6. If the program catches a SockeTimeoutException, let the user know about it and set loop's boolean variable to false.
 
 			//7. If the program catches a IOException, let the user know about it and set the loop's boolean variable to false.
@@ -49,6 +73,16 @@ public class ServerGreeter extends Thread {
 
 	public static void main(String[] args) {
 		//16. In a new thread, create an object of the ServerGreeter class and start the thread. Don't forget the try-catch.
-		
+
+			Thread serverThread = new Thread(()-> {
+				try {
+					new ServerGreeter();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+			serverThread.start();
+
 	}
 }
